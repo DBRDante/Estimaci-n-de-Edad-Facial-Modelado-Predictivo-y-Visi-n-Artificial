@@ -1,108 +1,140 @@
 <img width="921" height="269" alt="image" src="https://github.com/user-attachments/assets/38e789a9-e7b1-43f6-89c5-bf452d374b52" />
 
-# Estimación de Edad Facial para Cumplimiento Normativo en la Venta de Alcohol: Modelado Predictivo y Visión Artificial
+# Modelo Predictivo de Cancelación de Clientes Mediante Algoritmos de Clasificación: Caso Interconnect
 
 ## Problema
-En la cadena de supermercados Good Seed, garantizar el cumplimiento estricto de las normativas de venta de alcohol mediante la prohibición a menores de edad es un desafío operativo crítico. Las tiendas están equipadas con cámaras en el área de pago que se activan automáticamente al registrar la compra de este producto.  
-El objetivo de este proyecto es construir y evaluar un modelo de visión artificial capaz de predecir con precisión la edad cronológica de una persona a partir de su fotografía facial, sirviendo como una herramienta preventiva de apoyo para el personal de cajas.
+En la industria de las telecomunicaciones, la retención de usuarios es un factor determinante para garantizar la rentabilidad del negocio. El costo de adquisición de un nuevo cliente supera significativamente el de mantener a uno activo.  
+El objetivo de este proyecto es analizar los patrones de abandono (*churn*) en la empresa **Interconnect** y construir un modelo predictivo capaz de anticipar qué clientes tienen alta probabilidad de cancelar sus servicios, permitiendo al equipo de marketing ejecutar estrategias de fidelización preventivas.
 
 ---
 
 ## Datos
-El análisis utilizó un conjunto de datos compuesto por metadatos y registros fotográficos procesados mediante las siguientes etapas:
-- **Volumen del corpus:** 7,591 imágenes de rostros emparejadas con sus respectivas etiquetas de edad real (`real_age`).
-- **Flujo de datos:** Implementación de generadores dinámicos (`ImageDataGenerator`) con aumentación estocástica (volteo horizontal, rotaciones y desplazamientos) para el entrenamiento y preprocesamiento estandarizado con la función de ResNet50.
+El análisis integró cuatro fuentes de información vinculadas mediante el identificador `customerID` (7,043 registros):
+
+- **Contratos:** tipo de contrato, método de pago, cargos mensuales y cargos totales (`contract.csv`)  
+- **Demografía:** género, jubilación, pareja y dependientes (`personal.csv`)  
+- **Internet:** tipo de conexión y servicios de valor agregado (`internet.csv`)  
+- **Telefonía:** uso del servicio telefónico y múltiples líneas (`phone.csv`)  
 
 ---
 
 ## Enfoque
-El proyecto siguió una metodología estructurada de Deep Learning y visión artificial:
-- Análisis exploratorio de datos (EDA) para examinar la integridad del corpus, la distribución demográfica (con sesgo hacia adultos jóvenes) y los riesgos operativos en el umbral legal de los 18 años.
-- Implementación de *Transfer Learning* utilizando la red **ResNet50** pre-entrenada en ImageNet como modelo base (*backbone*), aplicando *fine-tuning* selectivo en las últimas 30 capas.
-- Construcción de un cabezal de regresión personalizado con *Global Average Pooling*, una capa densa de 128 neuronas (activación ReLU), regularización *Dropout* (0.3) y una capa de salida lineal.
-- Optimización mediante el algoritmo Adam con una tasa de aprendizaje de $1e-5$, optimizando la función de pérdida de Error Absoluto Medio (MAE) y utilizando *callbacks* (`EarlyStopping` y `ModelCheckpoint`) para guardar el mejor artefacto (`best_model.h5`).
+El proyecto siguió una metodología estructurada de ciencia de datos y modelado predictivo:
+
+- Preprocesamiento, limpieza e imputación de nulos en `TotalCharges`  
+- Ingeniería de características: cálculo de antigüedad (`tenure_days`) y definición del target `Churn`  
+- Prevención de *data leakage* mediante la eliminación de `customerID` y `EndDate`  
+- Experimentación multiescenario: evaluación en subconjuntos de datos (clientes con internet, sin internet y dataset completo)  
+- Entrenamiento y evaluación de **Regresión Logística**, **Random Forest** y **XGBoost** con validación cruzada y conjunto de prueba independiente  
 
 ---
 
 ## Resultados
-El modelo cumplió y superó satisfactoriamente los criterios de éxito establecidos:
-- **MAE (Validación):** 7.5534 años (superando el umbral requerido de $\le 8.0$ años).
+El modelo **`XGBClassifier` entrenado con el Dataset Completo** ofreció el mejor desempeño general:
+
+- **AUC-ROC (Test):** 0.9285  
+- **Accuracy (Test):** 89.43%  
+- **Puntuación SP:** 6.0 / 6.0 (Calificación máxima)  
 
 ### Otros resultados clave:
-- **Generalización:** La validación sobre el conjunto de prueba independiente (1,898 imágenes) confirmó la estabilidad del artefacto optimizado en datos no observados.
-- **Contraste empírico:** El modelo demostró estimaciones competitivas y una alta precisión en diferentes perfiles demográficos, validando su viabilidad práctica.
+- **Poder discriminativo:** El dataset completo superó de forma consistente a los subconjuntos divididos, demostrando que la interacción entre servicios web, telefonía y antigüedad es determinante para predecir el churn.  
+- **Generalización:** Presentó métricas alineadas entre el conjunto de validación (AUC-ROC: 0.9211) y prueba (AUC-ROC: 0.9285), descartando sobreajuste.  
 
 ---
 
 ## Conclusión
-El modelado predictivo basado en redes neuronales profundas demostró ser una solución técnica viable para automatizar la estimación de edad en entornos comerciales de gran escala. Implementar este flujo otorga a Good Seed una sólida base tecnológica para mitigar riesgos legales y asegurar el cumplimiento normativo en la venta de alcohol.
+El análisis demostró que los modelos de aprendizaje automático basados en *gradient boosting* permiten identificar proactivamente el riesgo de abandono en el sector de telecomunicaciones. 
+
+Implementar este modelo en producción proporcionará a Interconnect una herramienta automatizada para segmentar campañas de retención (+89% de precisión), protegiendo el *Customer Lifetime Value* (LTV) e incrementando la estabilidad de los ingresos recurrentes.
 
 ---
 
 ## Herramientas y Tecnologías
 - Python  
-- TensorFlow / Keras  
 - Pandas  
 - NumPy  
 - Scikit-Learn  
-- PIL / Matplotlib / Seaborn  
+- XGBoost  
+- Matplotlib  
+- Seaborn  
 
 ---
 
 ## Conclusión Clave
-Este proyecto demuestra la aplicación práctica de técnicas de transferencia de aprendizaje (*Transfer Learning*) y redes convolucionales orientadas a resolver un desafío crítico de cumplimiento legal y seguridad en el sector de retail.
+Este proyecto demuestra la aplicación práctica de clasificación avanzada para resolver un desafío operativo y financiero de alto impacto en telecomunicaciones, conectando la ingeniería de datos con decisiones estratégicas de retención de clientes.
+
+---
+
+## Archivos Finales
+La carpeta con los archivos finales (`final files`) se encuentra disponible en el siguiente enlace: [Carpeta de Archivos Finales](https://drive.google.com/uc?export=download&id=1qLEsMg4llT5Tz2CyrMH3xAudJPUKiypb)
 
 ---
 ---
 
-# Facial Age Estimation for Compliance in Alcohol Sales: Predictive Modeling and Computer Vision
+# Customer Churn Prediction Model Using Classification Algorithms – Interconnect Case Study
 
 ## Problem
-In the Good Seed supermarket chain, ensuring strict compliance with alcohol sales regulations by preventing sales to minors is a critical operational challenge. Stores are equipped with cameras in the checkout area that automatically activate when an alcohol purchase is registered.  
-The goal of this project is to build and evaluate a computer vision model capable of accurately predicting a person's chronological age from a facial photograph, serving as a preventive support tool for checkout staff.
+In the telecommunications industry, customer retention is critical for maintaining profitability. The cost of acquiring a new subscriber significantly exceeds the cost of retaining an existing one.  
+The goal of this project is to analyze churn patterns at **Interconnect** and build a machine learning pipeline capable of predicting which customers are at high risk of canceling their services, enabling the marketing team to trigger proactive retention campaigns.
 
 ---
 
 ## Data
-The analysis used a dataset composed of metadata and photographic records processed through the following stages:
-- **Corpus volume:** 7,591 facial images paired with their respective real age labels (`real_age`).
-- **Data flow:** Implementation of dynamic generators (`ImageDataGenerator`) with stochastic augmentation (horizontal flip, rotations, and shifts) for training and standardized preprocessing using ResNet50's function.
+The analysis consolidated four relational data sources linked by `customerID` (7,043 records):
+
+- **Contractual data:** contract type, payment method, monthly and total charges (`contract.csv`)  
+- **Demographics:** gender, senior citizen status, partner, and dependents (`personal.csv`)  
+- **Internet services:** connection type and add-on services (`internet.csv`)  
+- **Phone services:** multiple lines and phone feature usage (`phone.csv`)  
 
 ---
 
 ## Approach
-The project followed a structured Deep Learning and computer vision methodology:
-- Exploratory Data Analysis (EDA) to examine corpus integrity, demographic distribution (skewed toward young adults), and operational risks at the 18-year legal threshold.
-- Implementation of Transfer Learning using the **ResNet50** network pre-trained on ImageNet as a backbone, applying selective fine-tuning on the last 30 layers.
-- Construction of a custom regression head with Global Average Pooling, a 128-neuron dense layer (ReLU activation), Dropout regularization (0.3), and a linear output layer.
-- Optimization via the Adam algorithm with a learning rate of $1e-5$, optimizing the Mean Absolute Error (MAE) loss function and using callbacks (`EarlyStopping` and `ModelCheckpoint`) to save the best artifact (`best_model.h5`).
+The project followed a structured data science and predictive modeling workflow:
+
+- Data cleaning and null value imputation in `TotalCharges`  
+- Feature engineering: calculated customer tenure (`tenure_days`) and target variable `Churn`  
+- Data leakage prevention by dropping `customerID` and `EndDate`  
+- Multi-scenario evaluation: model assessment across subset segments (internet users, non-internet users, and full dataset)  
+- Training and evaluation of **Logistic Regression**, **Random Forest**, and **XGBoost** classifiers  
 
 ---
 
 ## Results
-The model successfully met and exceeded the established success criteria:
-- **MAE (Validation):** 7.5534 years (surpassing the required threshold of $\le 8.0$ years).
+The **`XGBClassifier` model trained on the Full Dataset** achieved the top performance:
 
-### Other Key Results:
-- **Generalization:** Validation on the independent test sample (1,898 images) confirmed the stability of the optimized artifact on unseen data.
-- **Empirical Contrast:** The model demonstrated competitive estimations and high accuracy across different demographic profiles, validating its practical viability.
+- **Test AUC-ROC:** 0.9285  
+- **Test Accuracy:** 89.43%  
+- **SP Score:** 6.0 / 6.0 (Maximum score)  
+
+### Other key results:
+- **Discriminative power:** The full dataset consistently outperformed segmented subsets, confirming that churn risk depends on multi-service interaction and tenure.  
+- **Generalization:** Validation AUC-ROC (0.9211) closely matched test AUC-ROC (0.9285), demonstrating robust generalization without overfitting.  
 
 ---
 
 ## Conclusion
-Predictive modeling based on deep neural networks proved to be a technically viable solution to automate age estimation in large-scale retail environments. Implementing this workflow provides Good Seed with a solid technological foundation to mitigate legal risks and ensure regulatory compliance in alcohol sales.
+Statistical and machine learning modeling confirmed that gradient boosting algorithms effectively anticipate customer churn in telecommunications. 
+
+Deploying this predictive model equips Interconnect with an automated mechanism to target retention incentives (+89% accuracy), protecting Customer Lifetime Value (LTV) and stabilizing recurring revenue.
 
 ---
 
 ## Tools and Technologies
 - Python  
-- TensorFlow / Keras  
 - Pandas  
 - NumPy  
 - Scikit-Learn  
-- PIL / Matplotlib / Seaborn  
+- XGBoost  
+- Matplotlib  
+- Seaborn  
 
 ---
 
 ## Key Takeaway
-This project demonstrates the practical application of transfer learning techniques and convolutional networks aimed at solving a critical challenge of legal compliance and security in the retail sector.
+This project showcases the application of machine learning classification to address a high-impact business problem, bridging data engineering with proactive customer retention strategy.
+
+---
+
+## Final Files
+The folder containing the final files (`final files`) is available at the following link: [Final Files Folder](https://drive.google.com/uc?export=download&id=1qLEsMg4llT5Tz2CyrMH3xAudJPUKiypb)
