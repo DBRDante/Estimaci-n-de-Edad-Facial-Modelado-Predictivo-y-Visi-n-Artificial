@@ -55,7 +55,6 @@ Este proyecto demuestra la aplicación práctica de técnicas de transferencia d
 ---
 ---
 
-<img width="921" height="269" alt="image" src="image_d6cdee.png" />
 
 # Facial Age Estimation for Compliance in Alcohol Sales: Predictive Modeling and Computer Vision
 
